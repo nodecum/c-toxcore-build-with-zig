@@ -77,15 +77,24 @@ pub fn main() !void {
     var line_no: usize = 0;
 
     var state = State.lines;
+    var sources_written: bool = false;
     while (reader.streamUntilDelimiter(line_writer, '\n', null)) {
         // Clear the line so we can reuse it.
         defer line.clearRetainingCapacity();
         line_no += 1;
         //
         if (state == State.lines) {
-            if (std.mem.eql(u8, line.items, "set(toxcore_SOURCES")) {
+            if (std.mem.startsWith(u8, line.items, "set(toxcore_SOURCES")) {
                 state = State.sources;
-                try writer.writeAll("const c_sources = [_][]const u8 {\n");
+                if (!sources_written) {
+                    try writer.writeAll(
+                        \\pub const c_sources = &.{
+                        \\    "toxcore/attributes.h",
+                        \\    "toxcore/tox_struct.h",
+                        \\    "toxencryptsave/defines.h",
+                    );
+                    sources_written = true;
+                }
             }
         } else if (state == State.sources) {
             var trimmed = std.mem.trim(u8, line.items, " \t,");
@@ -93,16 +102,16 @@ pub fn main() !void {
                 trimmed = trimmed[0 .. trimmed.len - 1];
                 state = State.lines; // end of sources
             }
-            if (std.mem.endsWith(u8, trimmed, ".c")) {
-                try writer.print("    \"{s}\",\n", .{trimmed});
-                //std.debug.print("{d}--{s}\n", .{ line_no, trimmed });
-            }
-            if (state == State.lines) try writer.writeAll("};\n");
+            //if (std.mem.endsWith(u8, trimmed, ".c")) {
+            try writer.print("    \"{s}\",\n", .{trimmed});
+            //std.debug.print("{d}--{s}\n", .{ line_no, trimmed });
+            //}
         }
     } else |err| switch (err) {
         error.EndOfStream => {}, // end of file
         else => return err, // Propagate error
     }
+    if (sources_written) try writer.writeAll("};\n");
 }
 fn fatal(comptime format: []const u8, args: anytype) noreturn {
     std.debug.print(format, args);

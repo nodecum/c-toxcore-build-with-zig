@@ -1,0 +1,6 @@
+# editor backup
+*~
+
+# zig output
+zig-cache/
+zig-out/

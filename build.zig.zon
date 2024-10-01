@@ -1,5 +1,5 @@
 .{
-    .name = "build-c-toxcore-with-zig",
+    .name = "c-toxcore-build-with-zig",
     .version = "0.2.19",
     .minimum_zig_version = "0.13.0",
     .dependencies = .{
@@ -13,8 +13,8 @@
         },
         // versions used 1.0.18 .. 1.0.19 .. 1.0.20
         .libsodium = .{
-            .url = "https://github.com/jedisct1/libsodium/releases/download/1.0.20-RELEASE/libsodium-1.0.20.tar.gz",
-            .hash = "1220f836d880c178a4ac55067149b5649cada6388528463f2b62d9b0953a670d4c2f",
+            .url = "https://github.com/jedisct1/libsodium/archive/b4ad79202bf1ac6e40464f301e637acd3a5949c9.tar.gz",
+            .hash = "122079caf5b1e1b66c4ea0859debbcc076f8303950833076654e43e891dd2934d96c",
         },
     },
     .paths = .{

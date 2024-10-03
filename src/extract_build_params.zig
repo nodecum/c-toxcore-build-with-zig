@@ -89,9 +89,6 @@ pub fn main() !void {
                 if (!sources_written) {
                     try writer.writeAll(
                         \\pub const c_sources = &.{
-                        \\    "toxcore/attributes.h",
-                        \\    "toxcore/tox_struct.h",
-                        \\    "toxencryptsave/defines.h",
                     );
                     sources_written = true;
                 }
@@ -102,10 +99,10 @@ pub fn main() !void {
                 trimmed = trimmed[0 .. trimmed.len - 1];
                 state = State.lines; // end of sources
             }
-            //if (std.mem.endsWith(u8, trimmed, ".c")) {
-            try writer.print("    \"{s}\",\n", .{trimmed});
-            //std.debug.print("{d}--{s}\n", .{ line_no, trimmed });
-            //}
+            if (std.mem.endsWith(u8, trimmed, ".c")) {
+                try writer.print("    \"{s}\",\n", .{trimmed});
+                //std.debug.print("{d}--{s}\n", .{ line_no, trimmed });
+            }
         }
     } else |err| switch (err) {
         error.EndOfStream => {}, // end of file

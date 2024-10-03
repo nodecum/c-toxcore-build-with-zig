@@ -10,6 +10,10 @@ developers this repository exists to be a proxy to the c-toxcore library.
 If a new version should be used, src/params.zig which contains the
 source files to be used can be updated by running
 
-> zig build run
+> zig build update
 
 which pulls the necessary c-toxcore sources. 
+
+> zig build tox_zig
+
+can be used to generate the zig bindings to the toxcore library.

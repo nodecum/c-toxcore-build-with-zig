@@ -21,6 +21,9 @@
         "build.zig",
         "build.zig.zon",
         "src",
+        "toxcore",
+        "toxencryptsave",
+        "thirdparty",
         // For example...
         //"LICENSE",
         //"README.md",

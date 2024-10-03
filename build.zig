@@ -15,31 +15,57 @@ pub fn build(b: *std.Build) void {
     //    const gtest_dep = b.dependency("gtest", .{ .target = target, .optimize = optimize });
     const cmp_dep = b.dependency("cmp", .{});
 
+    // create file tree for c-toxcore
+    const include_h_c = std.Build.Step.WriteFile.Directory.Options{ .include_extensions = &.{ ".h", ".c" } };
+    const wf = b.addNamedWriteFiles("c-toxcore");
+    const toxcore_dir = wf.addCopyDirectory(c_toxcore_dep.path("toxcore"), "toxcore", include_h_c);
+    _ = wf.addCopyDirectory(c_toxcore_dep.path("toxencryptsave"), "toxencryptsave", include_h_c);
+    _ = wf.addCopyDirectory(cmp_dep.path(""), "third_party/cmp", include_h_c);
+    //_ = wf.addCopyFile(c_toxcore_dep.path("CMakeLists.txt"),"CMakeLists.txt");
+    const root = wf.getDirectory();
+
     const lib = b.addStaticLibrary(.{
-        .name = "c-toxcore-build-with-zig",
+        .name = "c-toxcore",
         .target = target,
         .optimize = optimize,
         .link_libc = true,
     });
 
-    inline for (params.c_sources) |s| {
-        if (std.mem.startsWith(u8, s, "third_party/cmp")) {
-            const orig = cmp_dep.path(std.fs.path.basename(s));
-            const install = b.addInstallFileWithDir(orig, .{ .custom = "tmp" }, s);
-            lib.step.dependOn(&install.step);
-        } else {
-            const orig = c_toxcore_dep.path(s);
-            const install = b.addInstallFileWithDir(orig, .{ .custom = "tmp" }, s);
-            lib.step.dependOn(&install.step);
-        }
-        if (std.mem.endsWith(u8, s, ".c")) {
-            lib.addCSourceFile(.{ .file = b.path("zig-out/tmp").path(b, s) });
-        }
-    }
-    lib.addIncludePath(b.path("zig-out/tmp/toxcore"));
-    lib.installHeadersDirectory(b.path("zig-out/tmp/toxcore"), "toxcore", .{ .exclude_extensions = &.{".c"} });
+    lib.addCSourceFiles(.{
+        .root = root,
+        .files = params.c_sources,
+    });
+    lib.addIncludePath(toxcore_dir);
+    lib.installHeadersDirectory(toxcore_dir, "toxcore", .{ .exclude_extensions = &.{".c"} });
     lib.linkLibrary(libsodium);
     b.installArtifact(lib);
+
+    // lib compilation depends on file tree
+    lib.step.dependOn(&wf.step);
+
+    // ----- build zig wrapper
+    const tox_zig_step = b.step("tox_zig", "Build Zig wrappers around toxcore API");
+    // translate-c the tox.h file
+    const tox_h = toxcore_dir.path(b, "tox.h");
+    const tox_zig = b.addTranslateC(.{
+        .root_source_file = tox_h,
+        .target = b.host,
+        .optimize = optimize,
+    });
+    tox_zig.addIncludePath(toxcore_dir);
+    tox_zig_step.dependOn(&tox_zig.step);
+    tox_zig_step.dependOn(&b.addInstallFile(tox_zig.getOutput(), "tox.zig").step);
+
+    const entrypoint = tox_zig.getOutput();
+
+    // build cimgui as a module with the header file as the entrypoint
+    const mod_c_toxcore = b.addModule("c-toxcore", .{
+        .root_source_file = entrypoint,
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    mod_c_toxcore.linkLibrary(lib);
 
     // we have to read the CMakeLists.txt file
     // to achieve this we copy the dependency to
@@ -63,6 +89,6 @@ pub fn build(b: *std.Build) void {
     run_extract.addArg("src/params.zig");
 
     run_extract.step.dependOn(&CMakeLists_install.step);
-    const run_step = b.step("run", "Run the app");
+    const run_step = b.step("update", "Update C sources");
     run_step.dependOn(&run_extract.step);
 }

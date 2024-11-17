@@ -1,7 +1,7 @@
 .{
     .name = "c-toxcore-build-with-zig",
     .version = "0.2.19",
-    .minimum_zig_version = "0.13.0",
+    .minimum_zig_version = "0.14.0",
     .dependencies = .{
         .@"c-toxcore" = .{
             .url = "https://github.com/TokTok/c-toxcore/releases/download/v0.2.19/c-toxcore-0.2.19.tar.gz",

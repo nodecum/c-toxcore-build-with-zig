@@ -4,21 +4,28 @@ c-toxcore library. The usual way of doing this is to have build.zig in the
 root of the library. To add no further dependencies to the back of the c-toxcore
 developers this repository exists to be a proxy to the c-toxcore library.
 
-## build with zig 0.14.0 (2024.10.0-mach)
-to install using [zvm](https://www.zvm.app) do
+![Build Stutus](https://github.com/nodecum/c-toxcore-build-with-zig/actions/workflows/ci.yml/badge.svg)
+
+## Building with zig 0.14.0 (2024.10.0-mach)
+to install this zig version using [zvm](https://www.zvm.app) do
+
 > zvm vmu zig mach
+
 > zvm i 2024.10.0-mach
 
-## build the static library
+## Build the static library using [c-toxcore v0.2.19](https://github.com/TokTok/c-toxcore/releases/download/v0.2.19) 
+
 > zig build install
 
-If a new version should be used, src/params.zig which contains the
-source files to be used can be updated by running
+## Update the list of C source files
+
+If a new c-toxcore version should be used and names of files may have changed,
+src/params.zig which contains the source files to be used can be updated by running
 
 > zig build update
 
-which pulls the necessary c-toxcore sources. 
+This will extracts the necessary c-toxcore sources from CMakeLists.txt. 
+
+## Generate zig bindings
 
 > zig build tox_zig
-
-can be used to generate the zig bindings to the toxcore library.

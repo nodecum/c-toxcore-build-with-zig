@@ -16,6 +16,11 @@
             .url = "https://github.com/jedisct1/libsodium/archive/b4ad79202bf1ac6e40464f301e637acd3a5949c9.tar.gz",
             .hash = "122079caf5b1e1b66c4ea0859debbcc076f8303950833076654e43e891dd2934d96c",
         },
+        .winpthreads = .{
+            .url = "git+https://github.com/kassane/winpthreads-zigbuild#6cc2d18761206ad86aef250f34b71599748157bd",
+            .hash = "1220361551a5e3a3e398aeac4ec5999492111c9efb484b05b3cdf53f578482becce3",
+            .lazy = true,
+        },
     },
     .paths = .{
         "build.zig",

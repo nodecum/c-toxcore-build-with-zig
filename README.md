@@ -1,10 +1,11 @@
 # c-toxcore-build-with-zig
+
+[![ci](https://github.com/nodecum/c-toxcore-build-with-zig/actions/workflows/ci.yaml/badge.svg)](https://github.com/nodecum/c-toxcore-build-with-zig/actions/workflows/ci.yaml)
+
 The intension of this repository is to provide a zig build file for the
 c-toxcore library. The usual way of doing this is to have build.zig in the
 root of the library. To add no further dependencies to the back of the c-toxcore
 developers this repository exists to be a proxy to the c-toxcore library.
-
-![Build Stutus](https://github.com/nodecum/c-toxcore-build-with-zig/actions/workflows/ci.yml/badge.svg)
 
 ## Building with zig 0.14.0 (2024.10.0-mach)
 to install this zig version using [zvm](https://www.zvm.app) do

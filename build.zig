@@ -11,7 +11,7 @@ pub fn build(b: *std.Build) void {
         "libsodium",
         .{ .target = target, .optimize = optimize, .static = true, .shared = false },
     );
-    const libsodium = libsodium_dep.artifact("sodium");
+    const libsodium = libsodium_dep.artifact(if (target.result.isMinGW()) "libsodium-static" else "sodium");
     //    const gtest_dep = b.dependency("gtest", .{ .target = target, .optimize = optimize });
     const cmp_dep = b.dependency("cmp", .{});
 
@@ -37,6 +37,18 @@ pub fn build(b: *std.Build) void {
     lib.addIncludePath(toxcore_dir);
     lib.installHeadersDirectory(toxcore_dir, "toxcore", .{ .exclude_extensions = &.{".c"} });
     lib.linkLibrary(libsodium);
+    if (lib.rootModuleTarget().isMinGW()) {
+        if (b.lazyDependency("winpthreads", .{
+            .target = target,
+            .optimize = optimize,
+        })) |winpthreads_dep| {
+            const pthreads = winpthreads_dep.artifact("winpthreads");
+            for (pthreads.root_module.include_dirs.items) |include| {
+                lib.root_module.include_dirs.append(b.allocator, include) catch {};
+            }
+            lib.linkLibrary(pthreads);
+        }
+    }
     b.installArtifact(lib);
 
     // lib compilation depends on file tree

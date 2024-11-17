@@ -4,10 +4,11 @@ name: ci
 # identify issues while no commits are being pushed.
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
   schedule:
     - cron: "52 2 * * 0"
-
+  workflow_dispatch:
+  
 # Cancel old PR builds when pushing new commits.
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
